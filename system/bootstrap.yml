@@ -27,10 +27,16 @@
         values_files:
           - "argocd/{{ (first_install.resources | length == 0) | ternary('values-seed.yaml', 'values.yaml') }}"
       register: argocd_manifests
+    
+    - name: Debug ArgoCD manifests output
+      debug:
+        msg: "{{ argocd_manifests.stdout }}"
+
 
     - name: Apply ArgoCD manifests
       kubernetes.core.k8s:
-        resource_definition: "{{ argocd_manifests.stdout }}"
+        resource_definition: "{{ argocd_manifests.stdout | from_yaml }}"
         apply: true
         server_side_apply:
           field_manager: argocd-controller
+
