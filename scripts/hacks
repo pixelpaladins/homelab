@@ -179,7 +179,6 @@ def setup_kanidm_oauth_app(name: str, redirect_uri: str) -> None:
     except subprocess.CalledProcessError:
         return
 
-    # TODO https://github.com/dexidp/dex/pull/3188
     subprocess.run(
         ["kanidm", "system", "oauth2", "warning-insecure-client-disable-pkce", "--url", f"https://{kanidm_host}", "--name", "admin", name],
         capture_output=True,
@@ -187,32 +186,38 @@ def setup_kanidm_oauth_app(name: str, redirect_uri: str) -> None:
     )
 
     subprocess.run(
-        # TODO better group management
         ["kanidm", "system", "oauth2", "create-scope-map", "--url", f"https://{kanidm_host}", "--name", "admin", name, "editor", "openid", "profile", "email", "groups"],
         capture_output=True,
         check=True,
     )
 
-    # Step 1: Execute the subprocess command and capture the output
+    # Execute the subprocess command and capture the output
     output = subprocess.run(
         ["kanidm", "system", "oauth2", "show-basic-secret", "--url", f"https://{kanidm_host}", "--name", "admin", "--output", "json", name],
         capture_output=True,
         check=True
     ).stdout.decode("utf-8")
 
-    # Step 2: Print the output for debugging
+    # Print the output for debugging
     print("Output from subprocess command:", output)
     print("--------")
 
     if output:
-        client_secret = json.loads(subprocess.run(
-            ["kanidm", "system", "oauth2", "show-basic-secret", "--url", f"https://{kanidm_host}", "--name", "admin", "--output", "json", name],
-            capture_output=True,
-            check=True,
-        ).stdout.decode("utf-8"))['secret']
+        client_secret = json.loads(output)['secret']
+        apply_secret(
+            f"kanidm.{name}",
+            "global-secrets",
+            {
+                'client_id': base64.b64encode(name.encode("utf-8")).decode("utf-8"),
+                'client_secret': base64.b64encode(client_secret.encode("utf-8")).decode("utf-8"),
+            }
+        )
     else:
         print("Error: No output from subprocess command.")
-        client_secret = None
+        # Handle the case where client_secret is None, for example, log the error or exit
+        print("Failed to retrieve the client_secret, terminating.")
+        sys.exit(1)  # Exiting to prevent further execution with an invalid state
+
 
     apply_secret(
         f"kanidm.{name}",
