@@ -15,8 +15,8 @@ argocd-apps:
     root:
       generators:
         - git:
-            repoURL: &repoURL <seed_repo>
-            revision: &revision <branch>
+            repoURL: &repoURL https://github.com/pixelpaladins/homelab
+            revision: &revision development
             directories:
               - path: system/*
               - path: platform/*
