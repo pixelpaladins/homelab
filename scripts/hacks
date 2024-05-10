@@ -204,11 +204,15 @@ def setup_kanidm_oauth_app(name: str, redirect_uri: str) -> None:
     print("Output from subprocess command:", output)
     print("--------")
 
-    client_secret = json.loads(subprocess.run(
-        ["kanidm", "system", "oauth2", "show-basic-secret", "--url", f"https://{kanidm_host}", "--name", "admin", "--output", "json", name],
-        capture_output=True,
-        check=True,
-    ).stdout.decode("utf-8"))['secret']
+    if output:
+        client_secret = json.loads(subprocess.run(
+            ["kanidm", "system", "oauth2", "show-basic-secret", "--url", f"https://{kanidm_host}", "--name", "admin", "--output", "json", name],
+            capture_output=True,
+            check=True,
+        ).stdout.decode("utf-8"))['secret']
+    else:
+        print("Error: No output from subprocess command.")
+        client_secret = None
 
     apply_secret(
         f"kanidm.{name}",
