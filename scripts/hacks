@@ -31,6 +31,10 @@ gitea_url = f"http://{gitea_host}"
 
 kanidm_host = client.NetworkingV1Api().read_namespaced_ingress('kanidm', 'kanidm').spec.rules[0].host
 
+print("-------kanidm_host--------")
+print(kanidm_host)
+print("")
+
 def apply_secret(name: str, namespace: str, data: dict) -> None:
     try:
         client.CoreV1Api().read_namespaced_secret(name, namespace)
