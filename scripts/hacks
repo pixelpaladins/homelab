@@ -193,6 +193,16 @@ def setup_kanidm_oauth_app(name: str, redirect_uri: str) -> None:
         check=True,
     )
 
+    # Step 1: Execute the subprocess command and capture the output
+    output = subprocess.run(
+        ["kanidm", "system", "oauth2", "show-basic-secret", "--url", f"https://{kanidm_host}", "--name", "admin", "--output", "json", name],
+        capture_output=True,
+        check=True
+    ).stdout.decode("utf-8")
+
+    # Step 2: Print the output for debugging
+    print("Output from subprocess command:", output)
+
     client_secret = json.loads(subprocess.run(
         ["kanidm", "system", "oauth2", "show-basic-secret", "--url", f"https://{kanidm_host}", "--name", "admin", "--output", "json", name],
         capture_output=True,
