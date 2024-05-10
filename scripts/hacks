@@ -253,8 +253,8 @@ def main() -> None:
         for group in kanidm_groups:
             setup_kanidm_group(group['name'])
 
-        for app in kanidm_oauth_apps:
-            setup_kanidm_oauth_app(app['name'], app['redirect_uri'])
+        # for app in kanidm_oauth_apps:
+        #     setup_kanidm_oauth_app(app['name'], app['redirect_uri'])
 
 if __name__ == '__main__':
     main()
